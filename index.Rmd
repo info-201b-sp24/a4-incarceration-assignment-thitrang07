@@ -5,29 +5,21 @@ output: html_document
 
 ### Introduction
 
-An introduction of the problem domain and a description of the variable(s) you are choosing to analyze (and why!)
+Incarceration is a big issue in the United States, especially when you look at how different racial groups are affected. This project focuses on understanding the trends and distribution of jail populations among different racial groups, particularly the total jail population, Black jail population, and White jail population over time and across various counties. By analyzing these variables, we hope to uncover patterns that show how different racial groups are impacted by incarceration. This analysis is important for informing policy decisions and addressing systemic problems within the criminal justice system.
 
 ### Summary Information
 
-Write a summary paragraph of findings that includes the 5 values calculated from your summary information R script
-
-These will likely be calculated using your DPLYR skills, answering questions such as: 
-
-- What is the average value of my variable across all the counties (in the current year)?
-- Where is my variable the highest / lowest?
-- How much has my variable change over the last N years?
-
-Feel free to calculate and report values that you find relevant. Again, remember that the purpose is to think about how these measure of incarceration vary by race.
+Analyzing the incarceration data from 1970 to 2018 gives us some important insights. The average total jail population across all counties in the most recent year, 2018, is approximately 240 inmates per county. The county with the highest total jail population in 2018 recorded 24,000 inmates, while some counties had as few as 0 inmates. Over the last 50 years, the total jail population has increased significantly, growing from a few thousand to several hundred thousand. Specifically, in the year 2018, the Black jail population peaked at approximately 200,000, which highlights the significant racial disparities in incarceration rates. In comparison, the White jail population in the same year was around 300,000. Given the big difference between white and blakc population at that time, the ratio of population in jail to total population is much higher among black. From 1970 to 2018, the total jail population saw a dramatic increase, with the Black jail population increasing by about 180,000 and the White jail population by about 280,000. These findings underscore the need to address the underlying factors contributing to these disparities, such as socioeconomic conditions, law enforcement practices, and government policies.
 
 ### The Dataset
 
-Who collected the data?  
-How was the data collected or generated?  
-Why was the data collected?  
-How many observations (rows) are in your data?  
-How many features (columns) are in the data?  
-What, if any, ethical questions or questions of power do you need to consider when working with this data?  
-What are possible limitations or problems with this data?   (at least 200 words)
+This dataset was collected by the Vera Institute of Justice, which is a nonprofit organization focused on criminal justice reform. They gathered the data from public records, including jail and prison reports from counties all over the United States, covering the years from 1970 to 2018. The main reason they collected this data was to understand incarceration trends and help create better public policies to reduce mass incarceration and address racial disparities.
+
+There are over 3,000 rows in this dataset, with key columns like year, county name, total jail population, Black jail population, and White jail population. This data is really helpful for seeing how things have changed over time and comparing different racial groups and locations.
+
+There are some important ethical issues and limitations to think about when using this data. One big concern is making sure the data is used to support fair policies and not to reinforce stereotypes or biases. It’s also important to consider who controls the data and how they might influence public opinion and decisions.
+
+Another limitation is that some years or counties might have missing or incomplete data, which can make the analysis less accurate. Different counties might have reported their data in different ways, leading to inconsistencies. Even with these challenges, the dataset provides valuable insights into incarceration trends and shows the need for changes in the criminal justice system to address racial disparities.
 
 
 ### Trends Over Time Chart
@@ -46,26 +38,118 @@ When we say "clear" or "human readable" titles and labels, that means that you s
 
 Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, code = readLines("chart1_example.R")}
+```{r}
+# Load libraries
+library(dplyr)
+library(ggplot2)
+
+# Load the datasets
+us_jail_pop2 <- read.csv("Desktop/INFO201A/a4-incarceration-assignment-thitrang07/us-jail-pop.csv")
+
+# Aggregate data for trend over time
+jail_pop_over_time <- us_jail_pop2 %>%
+  group_by(year) %>%
+  summarize(total_jail_pop = sum(total_jail_pop, na.rm = TRUE),
+            black_jail_pop = sum(black_jail_pop, na.rm = TRUE))
+
+# Plot the trend over time with the updated y-axis label
+ggplot(jail_pop_over_time, aes(x = year)) +
+  geom_line(aes(y = total_jail_pop, color = "Total Jail Population")) +
+  geom_line(aes(y = black_jail_pop, color = "Black Jail Population")) +
+  geom_point(aes(y = total_jail_pop, color = "Total Jail Population")) +
+  geom_point(aes(y = black_jail_pop, color = "Black Jail Population")) +
+  ggtitle("Total and Black Jail Population Over Time") +
+  xlab("Year") +
+  ylab("Number of Inmates") +  # Updated y-axis label
+  scale_color_manual(values = c("Total Jail Population" = "red", "Black Jail Population" = "blue")) +
+  theme_minimal() +
+  labs(color = "Population Type")
+
 ```
+I included this chart to show the trends in the total and Black jail populations over time. By displaying these trends, we can see how the overall jail population and the population of Black inmates have changed from 1970 to 2018. The chart reveals a significant increase in both populations over the years, with a particularly steep rise during the 1980s and 1990s. This period aligns with the implementation of stricter criminal justice policies and the War on Drugs. The chart highlights the disparities between the total and Black jail populations, emphasizing the need for policy interventions to address these issues.
 
 ### Variable Comparison Chart
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
+```{r}
+# Aggregate data for comparison
+black_white_jail_pop_over_time <- us_jail_pop2 %>%
+  group_by(year) %>%
+  summarize(black_jail_pop = sum(black_jail_pop, na.rm = TRUE),
+            white_jail_pop = sum(white_jail_pop, na.rm = TRUE))
 
-The second chart that you will create and include will show how two different (continuous) variables are related to one another. Again, think carefully about what such a comparison means and what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
+# Plot the comparison chart
+ggplot(black_white_jail_pop_over_time, aes(x = year)) +
+  geom_line(aes(y = black_jail_pop, color = "Black Jail Population")) +
+  geom_line(aes(y = white_jail_pop, color = "White Jail Population")) +
+  geom_point(aes(y = black_jail_pop, color = "Black Jail Population")) +
+  geom_point(aes(y = white_jail_pop, color = "White Jail Population")) +
+  ggtitle("Comparison of Black and White Jail Population Over Time") +
+  xlab("Year") +
+  ylab("Jail Population") +
+  scale_color_manual(values = c("Black Jail Population" = "blue", "White Jail Population" = "green")) +
+  theme_minimal() +
+  labs(color = "Population Type")
+```
+I included this chart to compare the trends in the Black and White jail populations over time. This comparison helps us understand the racial disparities in incarceration rates. The chart shows that both Black and White jail populations have increased over the years, but the Black jail population has consistently been higher relative to the overall Black population in the U.S. This disparity indicates systemic issues within the criminal justice system that disproportionately affect Black individuals. The chart also highlights periods of sharp increases, particularly in the 1980s and 1990s, which correspond to changes in criminal justice policies.
 
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- If you choose to add a color encoding (not required), you need a legend for your different color and a clear legend title
 
 ### Map
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
+```{r}
+# Install Necessary Packages
+install.packages("maps")
+install.packages("dplyr")
 
-The last chart that you will create and include will show how a variable is distributed geographically. Again, think carefully about what such a comparison means and what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
+# Load the Required Libraries
+library(maps)
+library(dplyr)
 
-- Your map needs a title
-- Your color scale needs a legend with a clear label
-- Use a map based coordinate system to set the aspect ratio of your map
+# Load the dataset
+data_path <- "Desktop/INFO201A/a4-incarceration-assignment-thitrang07/us-jail-pop.csv"
+jail_data <- read.csv(data_path, stringsAsFactors = FALSE)
 
+# Inspect the dataset
+head(jail_data)
+names(jail_data)
+summary(jail_data)
+
+# Aggregate data to calculate total jail population for each county from 1970 to 2018
+jail_data_aggregated <- jail_data %>%
+  filter(year >= 1970 & year <= 2018) %>%
+  group_by(fips) %>%
+  summarize(total_jail_pop = sum(total_jail_pop, na.rm = TRUE))
+
+# Load county.fips
+data("county.fips")
+
+# Order of mapping in FIPS
+fipsOrder <- county.fips$fips[match(map("county", plot = FALSE)$names, county.fips$polyname)]
+
+# Rearrange the counties in the right sequence
+jail_data_aggregated <- jail_data_aggregated[match(fipsOrder, jail_data_aggregated$fips),]
+
+# Attach the data
+attach(jail_data_aggregated)
+
+# Handle NA values and create logs
+total_jail_pop[is.na(total_jail_pop)] <- 0
+log_jail_pop <- log(replace(total_jail_pop, which(total_jail_pop == 0), 1))
+
+# Define colors
+color1 <- hsv(0, log_jail_pop / max(log_jail_pop), 1)
+
+# Adjust plotting parameters
+par(mar = c(1, 1, 1, 1))  # Margins
+
+# Plot the map
+map("county", col = color1, fill = TRUE, resolution = 0, lty = 0, bg = "lightblue2")
+map("state", fill = FALSE, add = TRUE, lty = 1, lwd = 0.4)
+title("Total Jail Population in Each County From 1970 to 2018", cex = 0.5)
+legend("bottomright", 
+       c("0~5000", "5000~10000", "10000~15000", "15000~20000", "20000~24000"), 
+       fill = hsv(0, 0:4/4, 1), 
+       cex = 0.40) 
+
+detach(jail_data_aggregated)
+```
+I included the map to show the geographical distribution of the jail population across different counties in the United States. The map reveals interesting patterns, such as higher incarceration rates in some areas, which might be connected to local policies, economic conditions, or high population. By seeing these geographical differences, we can start to think about why certain areas have more people in jail and what can be done to address these issues. This information is crucial for developing targeted policies and interventions to reduce high incarceration rates in specific regions and address the underlying causes.
