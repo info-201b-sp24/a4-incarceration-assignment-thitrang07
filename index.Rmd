@@ -3,6 +3,16 @@ title: "A3: Incarceration"
 output: html_document
 ---
 
+```{r, echo=FALSE, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cloud.r-project.org"))  
+
+# Check and set the working directory
+current_dir <- getwd()
+setwd("~/Desktop/INFO201A/a4-incarceration-assignment-thitrang07")
+print(getwd())
+```
+
 ### Introduction
 
 Incarceration is a big issue in the United States, especially when you look at how different racial groups are affected. This project focuses on understanding the trends and distribution of jail populations among different racial groups, particularly the total jail population, Black jail population, and White jail population over time and across various counties. By analyzing these variables, we hope to uncover patterns that show how different racial groups are impacted by incarceration. This analysis is important for informing policy decisions and addressing systemic problems within the criminal justice system.
@@ -24,27 +34,14 @@ Another limitation is that some years or counties might have missing or incomple
 
 ### Trends Over Time Chart
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
-
-The first chart that you will create and include will show the trend over time of your variable/topic. Think carefully about what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
-
-- Show more than one, but fewer than ~10 trends
-  - This may mean showing the same measure for different locations or different racial groups. Think carefully about a meaningful comparison of locations (e.g., the top 10 counties in a state, top 10 states, etc.)
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- You need a legend for your different line colors and a clear legend title
-
-When we say "clear" or "human readable" titles and labels, that means that you should not just display the variable name.
-
-Here's an example of how to run an R script inside an RMarkdown file:
-
-```{r}
+```{r, echo=FALSE, message=FALSE}
 # Load libraries
 library(dplyr)
 library(ggplot2)
 
 # Load the datasets
-us_jail_pop2 <- read.csv("Desktop/INFO201A/a4-incarceration-assignment-thitrang07/us-jail-pop.csv")
+data_path <- "us-jail-pop.csv"
+us_jail_pop2 <- read.csv(data_path)
 
 # Aggregate data for trend over time
 jail_pop_over_time <- us_jail_pop2 %>%
@@ -66,11 +63,12 @@ ggplot(jail_pop_over_time, aes(x = year)) +
   labs(color = "Population Type")
 
 ```
+
 I included this chart to show the trends in the total and Black jail populations over time. By displaying these trends, we can see how the overall jail population and the population of Black inmates have changed from 1970 to 2018. The chart reveals a significant increase in both populations over the years, with a particularly steep rise during the 1980s and 1990s. This period aligns with the implementation of stricter criminal justice policies and the War on Drugs. The chart highlights the disparities between the total and Black jail populations, emphasizing the need for policy interventions to address these issues.
 
 ### Variable Comparison Chart
 
-```{r}
+```{r, echo=FALSE}
 # Aggregate data for comparison
 black_white_jail_pop_over_time <- us_jail_pop2 %>%
   group_by(year) %>%
@@ -90,22 +88,26 @@ ggplot(black_white_jail_pop_over_time, aes(x = year)) +
   theme_minimal() +
   labs(color = "Population Type")
 ```
+
 I included this chart to compare the trends in the Black and White jail populations over time. This comparison helps us understand the racial disparities in incarceration rates. The chart shows that both Black and White jail populations have increased over the years, but the Black jail population has consistently been higher relative to the overall Black population in the U.S. This disparity indicates systemic issues within the criminal justice system that disproportionately affect Black individuals. The chart also highlights periods of sharp increases, particularly in the 1980s and 1990s, which correspond to changes in criminal justice policies.
 
 
 ### Map
 
-```{r}
+```{r, include=FALSE}
+# Set CRAN mirror
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
 # Install Necessary Packages
-install.packages("maps")
-install.packages("dplyr")
+if (!require("maps")) install.packages("maps")
+if (!require("dplyr")) install.packages("dplyr")
 
 # Load the Required Libraries
 library(maps)
 library(dplyr)
 
 # Load the dataset
-data_path <- "Desktop/INFO201A/a4-incarceration-assignment-thitrang07/us-jail-pop.csv"
+data_path <- "us-jail-pop.csv"
 jail_data <- read.csv(data_path, stringsAsFactors = FALSE)
 
 # Inspect the dataset
@@ -140,7 +142,8 @@ color1 <- hsv(0, log_jail_pop / max(log_jail_pop), 1)
 
 # Adjust plotting parameters
 par(mar = c(1, 1, 1, 1))  # Margins
-
+```
+```{r, echo=FALSE}
 # Plot the map
 map("county", col = color1, fill = TRUE, resolution = 0, lty = 0, bg = "lightblue2")
 map("state", fill = FALSE, add = TRUE, lty = 1, lwd = 0.4)
@@ -152,4 +155,5 @@ legend("bottomright",
 
 detach(jail_data_aggregated)
 ```
+
 I included the map to show the geographical distribution of the jail population across different counties in the United States. The map reveals interesting patterns, such as higher incarceration rates in some areas, which might be connected to local policies, economic conditions, or high population. By seeing these geographical differences, we can start to think about why certain areas have more people in jail and what can be done to address these issues. This information is crucial for developing targeted policies and interventions to reduce high incarceration rates in specific regions and address the underlying causes.
